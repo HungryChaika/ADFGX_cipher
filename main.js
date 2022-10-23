@@ -10,6 +10,39 @@ let test = ['а', 'б', 'в', 'г', 'д'];
 window.onload = () => {
     Alphabet = RandomSortArray(Alphabet);
     CreateEncryptionTable("Шифровальная таблица");
+    document.querySelector('#Encrypt_Button').addEventListener('click', () => {
+        const InitiallyEncryptText = EncryptAndDecryptEvents('Encrypt');
+        //console.log(InitiallyEncryptText);
+        //console.log(InitiallyEncryptText.split(''));  //'string'.join('');
+        const Key = (document.querySelector('#Code_Key').value).toUpperCase();
+        if(Key && InitiallyEncryptText) {
+            const ArrayInitiallyEncryptText = [];
+            const Limitation = (InitiallyEncryptText.length % Key.length == 0) ?
+                InitiallyEncryptText.length :
+                InitiallyEncryptText.length - InitiallyEncryptText.length % Key.length + Key.length;
+            let Arr = [];
+            for(let i = 0; i < Limitation; i++) {
+                if(i < InitiallyEncryptText.length) {
+                    Arr.push(InitiallyEncryptText[i]);
+                } else {
+                    Arr.push(0);
+                }
+                if((i + 1) % Key.length == 0) {
+                    ArrayInitiallyEncryptText.push(Arr);
+                    Arr = [];
+                };
+            }
+            console.log(ArrayInitiallyEncryptText);
+        } else {
+            //Некорректные данные, проверьте наличие ключа или сверютесь с разрешёнными символами шифровальной таблцы
+        }
+        
+
+
+    });
+    document.querySelector('#Decrypt_Button').addEventListener('click', () => {
+        EncryptAndDecryptEvents('Decrypt');
+    });
 
 }
 
@@ -44,7 +77,7 @@ function CreateEncryptionTable(name = "", size = 6 /* standard = true */) {
                     table_data.innerHTML = (CodeCoof[j - 1]).toUpperCase();
                 } 
                 table_data.setAttribute('id', `elem_${i}_${j}`);
-                table_data.setAttribute('class', 'table_colums');
+                table_data.setAttribute('class', 'table_columns');
                 table_data.style.width = `${90 / (size + 1)}%`;
                 table_row.appendChild(table_data);
             }
@@ -58,7 +91,7 @@ function CreateEncryptionTable(name = "", size = 6 /* standard = true */) {
                     Counter++;
                 }
                 table_data.setAttribute('id', `elem_${i}_${j}`);
-                table_data.setAttribute('class', 'table_colums');
+                table_data.setAttribute('class', 'table_columns');
                 table_data.style.width = `${90 / (size + 1)}%`;
                 table_row.appendChild(table_data);
             }
@@ -69,12 +102,45 @@ function CreateEncryptionTable(name = "", size = 6 /* standard = true */) {
     document.querySelector('#Div_Encryption_Decryption_Table').appendChild(table_body);
 }
 
-function AddEventsToTableCellsTable() {
+function EncryptAndDecryptEvents(EventName) {
+    const Text = document.querySelector(`#${EventName}_Text`).value;
+    const Key = document.querySelector('#Code_Key').value;
+    let LetterIndex;
+    let AnswerText = "";
+    if(EventName == 'Encrypt') {
+        for(let i = 0; i < Text.length; i++) {
+            LetterIndex = Alphabet.findIndex((value) => {
+                if(Text[i].toUpperCase() == value.toUpperCase()) {
+                    return true;
+                }
+                return false;
+            });
+            if(LetterIndex > -1) {
+                let row = (LetterIndex + 1) / CodeCoof.length;
+                if(row % 1 != 0) {
+                    row = row - row % 1 + 1;
+                }
+                let column = LetterIndex + 1 - CodeCoof.length * (row - 1);
+                AnswerText += document.querySelector(`#elem_${row}_${0}`).innerHTML;
+                AnswerText += document.querySelector(`#elem_${0}_${column}`).innerHTML
+            } else {
+                return null;
+            };
+        }
+        return AnswerText;
+    };
+    if(EventName == 'Decrypt') {
+
+        return;
+    };
+}
+
+/* function AddEventsToTableCellsTable() {
     const cells = querySelectorAll('colums');
     for(let i = 0; i < cells.length; i++) {
         console.log(cells[i].innerHTML);
     }
-}
+} */
 
 function RandomSortArray(arr) {
     const Answer = new Array(arr.length);
