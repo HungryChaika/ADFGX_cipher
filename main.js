@@ -5,18 +5,16 @@ let Alphabet = [
         'х', 'ц', 'ч', 'ш', 'щ', 'ъ', 'ь', 'ы', 'э', 'ю', 'я',
         '.', ',', ' '
     ];
-let test = ['а', 'б', 'в', 'г', 'д'];
 
 window.onload = () => {
     Alphabet = RandomSortArray(Alphabet);
     CreateEncryptionTable("Шифровальная таблица");
     document.querySelector('#Encrypt_Button').addEventListener('click', () => {
-        const InitiallyEncryptText = EncryptAndDecryptEvents('Encrypt');
-        //console.log(InitiallyEncryptText);
-        //console.log(InitiallyEncryptText.split(''));  //'string'.join('');
+
+        const InitiallyEncryptText = EncryptEvent();
         const Key = (document.querySelector('#Code_Key').value).toUpperCase();
         if(Key && InitiallyEncryptText) {
-            const ArrayInitiallyEncryptText = [];
+            const ArrayEncryptText = [];
             const Limitation = (InitiallyEncryptText.length % Key.length == 0) ?
                 InitiallyEncryptText.length :
                 InitiallyEncryptText.length - InitiallyEncryptText.length % Key.length + Key.length;
@@ -28,20 +26,90 @@ window.onload = () => {
                     Arr.push(0);
                 }
                 if((i + 1) % Key.length == 0) {
-                    ArrayInitiallyEncryptText.push(Arr);
+                    ArrayEncryptText.push(Arr);
                     Arr = [];
-                };
+                }
             }
-            console.log(ArrayInitiallyEncryptText);
+            console.log(Key);
+            console.log(ArrayEncryptText);
+            const CopySortKey = Key.split('').sort();
+            console.log(CopySortKey);
+            const SortArrayEncryptText = [];
+            for(let i = 0; i < CopySortKey.length; i++) {
+                if(i > 0 && CopySortKey[i - 1] == CopySortKey[i]) {
+                    continue;
+                }
+                for(let j = 0; j < Key.length; j++) {
+                    if(CopySortKey[i] == Key[j]) {
+                        const Arr = [];
+                        for(let k = 0; k < ArrayEncryptText.length; k++) {
+                            Arr.push(ArrayEncryptText[k][j]);
+                        }
+                        SortArrayEncryptText.push(Arr);
+                    }
+                }
+            }
+            console.log(SortArrayEncryptText);
+            const AnswerArea = document.querySelector('#Decrypt_Text');
+            AnswerArea.value = '';
+            SortArrayEncryptText.forEach((elemArr) => {
+                elemArr.forEach((item) => {
+                    if(item != 0) {
+                        AnswerArea.value += item;
+                    }
+                });
+            });
         } else {
-            //Некорректные данные, проверьте наличие ключа или сверютесь с разрешёнными символами шифровальной таблцы
+            alert('Некорректные данные, проверьте наличие ключа или сверютесь с разрешёнными символами шифровальной таблцы');
         }
         
-
-
     });
     document.querySelector('#Decrypt_Button').addEventListener('click', () => {
-        EncryptAndDecryptEvents('Decrypt');
+
+        const InitiallyDecryptText = DecryptEvent();
+        const Key = document.querySelector('#Code_Key').value.toUpperCase();
+        console.log('InitiallyDecryptText   ' + InitiallyDecryptText);
+        console.log('Key   ' + Key);
+        if(Key && InitiallyDecryptText) {
+
+            const CopySortKey = Key.split('').sort();
+            let RowQuantity = InitiallyDecryptText.length / Key.length - (InitiallyDecryptText.length / Key.length) % 1;
+            RowQuantity += ((InitiallyDecryptText.length / Key.length) % 1 == 0) ? 0 : 1;
+            let ZeroQuantity = Key.length - InitiallyDecryptText.length % Key.length;
+            ZeroQuantity = (ZeroQuantity == Key.length) ? 0 : ZeroQuantity;
+            console.log('RowQuantity   ' + RowQuantity);
+            console.log('ZeroQuantity   ' + ZeroQuantity);
+            let LettersWithUnfinishedColumns = Key.split('').slice(Key.length - ZeroQuantity, Key.length);
+            for(let k = LettersWithUnfinishedColumns.length - 1; k >= 0; k--) {
+                for(let t = k - 1; t >= 0; t--) {
+                    if(t >= 0 && LettersWithUnfinishedColumns[k] == LettersWithUnfinishedColumns[t]) {
+                        LettersWithUnfinishedColumns.splice(t, 1);
+                    }
+                }
+            }
+            console.log('LettersWithUnfinishedColumns   ' + LettersWithUnfinishedColumns);
+            for(let i = 0; i < LettersWithUnfinishedColumns.length; i++) {
+                let counter = 0;
+                for(let j = 0; j < Key.length; j++) {
+                    if(LettersWithUnfinishedColumns[i] == Key[j]) {
+                        counter++;
+                    }
+                }
+                const letter = LettersWithUnfinishedColumns[i];
+                LettersWithUnfinishedColumns[i] = [LettersWithUnfinishedColumns[i], counter];
+            }
+            LettersWithUnfinishedColumns.forEach(elem => {
+                console.log(elem[0] + ' : ' + elem[1]);
+            });
+
+            // ДАЛЕЕ НУЖНО РАЗДЕЛИТЬ InitiallyDecryptText НА МАССИВ СО СТРОКАМИ УЧИТЫВАЯ ПОЗИЦИИ НУЛЕЙ.
+            // МОЖНО ДАЖЕ УБРАТЬ ОЧИСТКУ ПОВТОРЯЮЩИХСЯ БУКВ В LettersWithUnfinishedColumns И 
+            //ТАКИМ ОБРАЗОМ ЕЩЁ И ПОСЛЕДНИЙ ЦИКЛ, А В ПОСЛЕДУЮЩИХ ЦИКЛАХ ДЕЛАТЬ ОБХОД С КОНЦА
+
+        } else {
+            alert('Некорректные данные, проверьте наличие ключа или сверютесь с разрешёнными символами шифровальной таблцы');
+        }
+
     });
 
 }
@@ -102,37 +170,48 @@ function CreateEncryptionTable(name = "", size = 6 /* standard = true */) {
     document.querySelector('#Div_Encryption_Decryption_Table').appendChild(table_body);
 }
 
-function EncryptAndDecryptEvents(EventName) {
-    const Text = document.querySelector(`#${EventName}_Text`).value;
-    const Key = document.querySelector('#Code_Key').value;
+function EncryptEvent() {
+    const Text = document.querySelector(`#Encrypt_Text`).value;
+    //const Key = document.querySelector('#Code_Key').value;
     let LetterIndex;
     let AnswerText = "";
-    if(EventName == 'Encrypt') {
-        for(let i = 0; i < Text.length; i++) {
-            LetterIndex = Alphabet.findIndex((value) => {
-                if(Text[i].toUpperCase() == value.toUpperCase()) {
-                    return true;
-                }
-                return false;
-            });
-            if(LetterIndex > -1) {
-                let row = (LetterIndex + 1) / CodeCoof.length;
-                if(row % 1 != 0) {
-                    row = row - row % 1 + 1;
-                }
-                let column = LetterIndex + 1 - CodeCoof.length * (row - 1);
-                AnswerText += document.querySelector(`#elem_${row}_${0}`).innerHTML;
-                AnswerText += document.querySelector(`#elem_${0}_${column}`).innerHTML
-            } else {
-                return null;
-            };
-        }
-        return AnswerText;
-    };
-    if(EventName == 'Decrypt') {
+    for(let i = 0; i < Text.length; i++) {
+        LetterIndex = Alphabet.findIndex((value) => {
+            if(Text[i].toUpperCase() == value.toUpperCase()) {
+                return true;
+            }
+            return false;
+        });
+        if(LetterIndex > -1) {
+            let row = (LetterIndex + 1) / CodeCoof.length;
+            if(row % 1 != 0) {
+                row = row - row % 1 + 1;
+            }
+            let column = LetterIndex + 1 - CodeCoof.length * (row - 1);
+            AnswerText += document.querySelector(`#elem_${row}_${0}`).innerHTML.toUpperCase();
+            AnswerText += document.querySelector(`#elem_${0}_${column}`).innerHTML.toUpperCase();
+        } else {
+            return null;
+        };
+    }
+    return AnswerText;
+}
 
-        return;
-    };
+function DecryptEvent() {
+    const text = document.querySelector('#Decrypt_Text').value.toUpperCase();
+    for(let i = 0; i < text.length; i++) {
+        let flag = true;
+        for(let j = 0; j < CodeCoof.length; j++) {
+            if(text[i] == CodeCoof[j]) {
+                flag = false;
+                break;
+            }
+        }
+        if(flag) {
+            return null;
+        }
+    }
+    return text;
 }
 
 /* function AddEventsToTableCellsTable() {
