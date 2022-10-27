@@ -50,17 +50,30 @@ textarea {
 
 #table_head {
     display: block;
-    float: top;
-    width: 95%;
+    float: left;
+    width: 70%;
     height: 10%;
-    margin-bottom: 2%;
+    margin: 1%;
     font-size: 4vmin;
+    text-align: center;
+    line-height: 6vmin;
+}
+
+#Sort_Table {
+    display: block;
+    float: left;
+    width: 18%;
+    height: 8%;
+    margin: 1%;
+    margin-top: 2%;
+    margin-bottom: 2%;
+    font-size: 3vmin;
     text-align: center;
 }
 
 #table_body {
     display: block;
-    float: top;
+    float: left;
     width: 95%;
     height: 85%;
     margin: 2%;
@@ -81,38 +94,6 @@ textarea {
     line-height: 8vmin;
 
 }
-
-/* table {
-    width: 100%;
-    height: 70%;
-}
-
-thead {
-    display: block;
-    float: left;
-    width: 100%;
-    margin: 1%;
-    font-size: 4vmin;
-    text-align: center;
-}
-
-tbody {
-    width: 100%;
-}
-
-tr {
-    display: block;
-}
-
-td {
-    display: inline;
-    overflow:hidden;
-    width: 50vw;
-    margin: 0.5%;
-    border: 0.5% solid;
-    font-size: 3vmin;
-    text-align: center;
-} */
 
 #More_Table_Size, #Less_Table_Size {
     display: inline;

@@ -7,8 +7,8 @@ let Alphabet = [
     ];
 
 window.onload = () => {
-    Alphabet = RandomSortArray(Alphabet);
-    CreateEncryptionTable("Шифровальная таблица");
+    //Alphabet = RandomSortArray(Alphabet);
+    CreateEncryptionTable();
     document.querySelector('#Encrypt_Button').addEventListener('click', () => {
 
         const InitiallyEncryptText = EncryptEvent();
@@ -73,12 +73,21 @@ window.onload = () => {
         if(Key && InitiallyDecryptText) {
 
             const CopySortKey = Key.split('').sort();
+            console.log('CopySortKey   ' + CopySortKey);
             let RowQuantity = InitiallyDecryptText.length / Key.length - (InitiallyDecryptText.length / Key.length) % 1;
             RowQuantity += ((InitiallyDecryptText.length / Key.length) % 1 == 0) ? 0 : 1;
             let ZeroQuantity = Key.length - InitiallyDecryptText.length % Key.length;
             ZeroQuantity = (ZeroQuantity == Key.length) ? 0 : ZeroQuantity;
             console.log('RowQuantity   ' + RowQuantity);
             console.log('ZeroQuantity   ' + ZeroQuantity);
+
+
+
+            //ВОЗМОЖНО СТОИТ РАЗДЕЛИТЬ LettersWithUnfinishedColumns НА КОНКРЕТНУЮ СТРОКУ ИЗ КЛЮЧА И КОЛИЧЕСТВО БУКВ ИЗ
+            //LettersWithUnfinishedColumns В КЛЮЧЕ!!!!!!!!!!!!!!!!!!!!!
+
+
+
             let LettersWithUnfinishedColumns = Key.split('').slice(Key.length - ZeroQuantity, Key.length);
             for(let k = LettersWithUnfinishedColumns.length - 1; k >= 0; k--) {
                 for(let t = k - 1; t >= 0; t--) {
@@ -88,6 +97,8 @@ window.onload = () => {
                 }
             }
             console.log('LettersWithUnfinishedColumns   ' + LettersWithUnfinishedColumns);
+            const QuantityLettersWithUnfinishedColumns = [];
+            let ElemIndex = 0;
             for(let i = 0; i < LettersWithUnfinishedColumns.length; i++) {
                 let counter = 0;
                 for(let j = 0; j < Key.length; j++) {
@@ -95,16 +106,41 @@ window.onload = () => {
                         counter++;
                     }
                 }
-                const letter = LettersWithUnfinishedColumns[i];
-                LettersWithUnfinishedColumns[i] = [LettersWithUnfinishedColumns[i], counter];
+                QuantityLettersWithUnfinishedColumns[ElemIndex] = [LettersWithUnfinishedColumns[i], counter];
+                ElemIndex++;
             }
-            LettersWithUnfinishedColumns.forEach(elem => {
+            QuantityLettersWithUnfinishedColumns.forEach(elem => {
                 console.log(elem[0] + ' : ' + elem[1]);
             });
+            console.log('LettersWithUnfinishedColumns.length   ' + LettersWithUnfinishedColumns.length);
+            console.log('QuantityLettersWithUnfinishedColumns.length   ' + QuantityLettersWithUnfinishedColumns.length);
 
             // ДАЛЕЕ НУЖНО РАЗДЕЛИТЬ InitiallyDecryptText НА МАССИВ СО СТРОКАМИ УЧИТЫВАЯ ПОЗИЦИИ НУЛЕЙ.
             // МОЖНО ДАЖЕ УБРАТЬ ОЧИСТКУ ПОВТОРЯЮЩИХСЯ БУКВ В LettersWithUnfinishedColumns И 
-            //ТАКИМ ОБРАЗОМ ЕЩЁ И ПОСЛЕДНИЙ ЦИКЛ, А В ПОСЛЕДУЮЩИХ ЦИКЛАХ ДЕЛАТЬ ОБХОД С КОНЦА
+            // ТАКИМ ОБРАЗОМ ЕЩЁ И ПОСЛЕДНИЙ ЦИКЛ, А В ПОСЛЕДУЮЩИХ ЦИКЛАХ ДЕЛАТЬ ОБХОД С КОНЦА
+            // ПРОБЛЕМА МОЖЕТ БЫТЬ ТОЛЬКО С ЗАПОЛНЕНИЕМ МАССИВА МАССИВОВ ИЗ InitiallyDecryptText
+            
+            const ArrDecryptText = [];
+            const Arr = [];
+            /* for(let i = 0; i < InitiallyDecryptText.length; i++) {
+                let Counter = 0;
+                for(let j = 0; j < CopySortKey.length; j++) {
+
+                    if(Counter < LettersWithUnfinishedColumns.length) {
+                        if(InitiallyDecryptText[i] == LettersWithUnfinishedColumns[Counter]) {
+                            if(QuantityLettersWithUnfinishedColumns[Counter][1] > 0) {
+                                QuantityLettersWithUnfinishedColumns[Counter][1]--;
+                                continue;
+                            } else {
+                                Arr.push(0);
+                            }
+                        } else {
+
+                        }
+                    }
+                }
+
+            } */
 
         } else {
             alert('Некорректные данные, проверьте наличие ключа или сверютесь с разрешёнными символами шифровальной таблцы');
@@ -114,10 +150,16 @@ window.onload = () => {
 
 }
 
-function CreateEncryptionTable(name = "", size = 6 /* standard = true */) {
-    const table_head = document.createElement('p');
-    table_head.innerHTML = name;
+function CreateEncryptionTable(size = 6 /* standard = true */) {
+    const table_head = document.createElement('text');
+    table_head.innerHTML = "Шифровальная таблица";
     table_head.setAttribute('id', 'table_head');
+    const Button_Sort_Table = document.createElement("button");
+    Button_Sort_Table.innerHTML = "sort";
+    Button_Sort_Table.setAttribute('id', 'Sort_Table');
+    Button_Sort_Table.addEventListener('click', () => {
+        Alphabet = RandomSortArray(Alphabet);
+    })
 
     /* const Button_More_Table_Size = document.createElement("button");
     Button_More_Table_Size.innerHTML = "+";
@@ -167,6 +209,7 @@ function CreateEncryptionTable(name = "", size = 6 /* standard = true */) {
         table_body.appendChild(table_row);
     }
     document.querySelector('#Div_Encryption_Decryption_Table').appendChild(table_head);
+    document.querySelector('#Div_Encryption_Decryption_Table').appendChild(Button_Sort_Table);
     document.querySelector('#Div_Encryption_Decryption_Table').appendChild(table_body);
 }
 
