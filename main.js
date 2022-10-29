@@ -2,10 +2,9 @@
 const CodeCoof = ['A', 'D', 'F', 'G', 'X', 'M'];
 // Массив алфавита
 let Alphabet = [
-        'а', 'б', 'в', 'г', 'д', 'е', 'ё', 'ж', 'з', 'и', 'й',
-        'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с', 'т', 'у', 'ф',
-        'х', 'ц', 'ч', 'ш', 'щ', 'ъ', 'ь', 'ы', 'э', 'ю', 'я',
-        '.', ',', ' '
+        'а', 'б', 'в', 'г', 'д', 'е', 'ё', 'ж', 'з', 'и', 'й', 'к',
+        'л', 'м', 'н', 'о', 'п', 'р', 'с', 'т', 'у', 'ф', 'х', 'ц',
+        'ч', 'ш', 'щ', 'ъ', 'ь', 'ы', 'э', 'ю', 'я', '.', ',', ' '
     ];
 
 window.onload = () => {
@@ -37,15 +36,6 @@ function CreateEncryptionTable() {
         Alphabet = RandomSortArray(Alphabet);
         Render();
     })
-
-    /* const Button_More_Table_Size = document.createElement("button");
-    Button_More_Table_Size.innerHTML = "+";
-    Button_More_Table_Size.id = 'More_Table_Size';
-    const Button_Less_Table_Size = document.createElement("button");
-    Button_Less_Table_Size.innerHTML = "-";
-    Button_Less_Table_Size.id = 'Less_Table_Size';
-    table_head.appendChild(Button_More_Table_Size);
-    table_head.appendChild(Button_Less_Table_Size); */
 
     const table_body = document.createElement('div');
     table_body.setAttribute('id', 'table_body');
@@ -204,28 +194,6 @@ function DecryptEvent() {
 
         console.log('SortKey   ' + SortKey);
         console.log('LettersWithUnfinishedColumns   ' + LettersWithUnfinishedColumns);
-        
-        /* 
-        const QuantityLettersWithUnfinishedColumns = [];
-        for(let i = 0; i < LettersWithUnfinishedColumns.length; i++) {
-            let counter = 0;
-            let ElemRepeatFlag = true;
-            for(let k = 0; k < QuantityLettersWithUnfinishedColumns.length; k++) {
-                if(LettersWithUnfinishedColumns[i] == QuantityLettersWithUnfinishedColumns[k][0]) {
-                    ElemRepeatFlag = false;
-                    break;
-                }
-            }
-            if(ElemRepeatFlag) {
-                for(let j = 0; j < Key.length; j++) {
-                    if(LettersWithUnfinishedColumns[i] == Key[j]) {
-                        counter++;
-                    }
-                }
-                QuantityLettersWithUnfinishedColumns.push([LettersWithUnfinishedColumns[i], counter]);
-            }
-        }
-        */
 
         const IndexesOfIncompleteColumns = [];
         let CopySortKey = SortKey.slice(0, SortKey.length);
@@ -277,36 +245,44 @@ function DecryptEvent() {
         console.log('SortDecryptText');
         console.log(SortDecryptText);
 
-        let OriginalDecryptText = [];
-        for(let k = 0; k < RowQuantity; k++) {
-            const Arr = [];
-            for(let i = 0; i < Key.length; i++) {
-                if(i > 0 && Key[i - 1] == SortKey[i]) {
-                    continue;
-                }
-                for(let j = 0; j < SortKey.length; j++) {
-                    if(Key[i] == SortKey[j]) {
-                        Arr.push(SortDecryptText[j][k]);
-                    }
+        const DecryptText = [];
+        CopySortKey = SortKey.slice(0, SortKey.length);
+        for(let i = 0; i < Key.length; i++) {
+            for(let j = 0; j < CopySortKey.length; j++) {
+                if(Key[i] == CopySortKey[j]) {
+                    DecryptText.push(SortDecryptText[j]);
+                    CopySortKey[j] = null;
+                    break;
                 }
             }
-            OriginalDecryptText.push(Arr.join(''));
         }
-        OriginalDecryptText = OriginalDecryptText.join('');
 
-        console.log('OriginalDecryptText');
-        console.log(OriginalDecryptText);
+        console.log('DecryptText');
+        console.log(DecryptText);
+
+        let InvertedDecryptText = [];
+        for(let j = 0; j < DecryptText[0].length; j++) {
+            const Arr = [];
+            for(let i = 0; i < DecryptText.length; i++) {
+                Arr.push(DecryptText[i][j]);
+            }
+            InvertedDecryptText.push(Arr.join(''));
+        }
+        InvertedDecryptText = InvertedDecryptText.join('');
+
+        console.log('InvertedDecryptText');
+        console.log(InvertedDecryptText);
 
         let AnswerText = '';
-        for(let k = 0; k < OriginalDecryptText.length; k = k + 2) {
-            let X = CodeCoof.indexOf(OriginalDecryptText[k]) + 1;
-            let Y = CodeCoof.indexOf(OriginalDecryptText[k + 1]) + 1;
+        for(let k = 0; k < InvertedDecryptText.length; k = k + 2) {
+            let X = CodeCoof.indexOf(InvertedDecryptText[k]);
+            let Y = CodeCoof.indexOf(InvertedDecryptText[k + 1]);
             if(X != -1 && Y != -1) {
-                AnswerText += document.querySelector(`#elem_${X}_${Y}`).innerHTML;
+                AnswerText += Alphabet[X * CodeCoof.length + Y];
             }
         }
         const AnswerArea = document.querySelector('#Encrypt_Text');
-        AnswerArea.value = AnswerText;
+        AnswerArea.value = AnswerText.toUpperCase();
     } else {
         alert('Некорректные данные, проверьте наличие ключа или сверютесь с разрешёнными символами шифровальной таблцы');
     }
@@ -321,12 +297,6 @@ function RandomSortArray(arr) {
         AnswerArray[Index] = ElementToBeReplaced;
     }
     return AnswerArray;
-}
-
-function CheckArr(arr) {
-    for(let i = 0; i < arr.length; i++) {
-        console.log(arr[i]);
-    }
 }
 
 /* function AddEventsToTableCellsTable() {
