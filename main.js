@@ -1,4 +1,6 @@
+// Массив шифровальных символов
 const CodeCoof = ['A', 'D', 'F', 'G', 'X', 'M'];
+// Массив алфавита
 let Alphabet = [
         'а', 'б', 'в', 'г', 'д', 'е', 'ё', 'ж', 'з', 'и', 'й',
         'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с', 'т', 'у', 'ф',
@@ -18,12 +20,13 @@ window.onload = () => {
 
 function Render() {
     document.querySelector('#Div_Encryption_Decryption_Table').innerHTML = '';
-    document.querySelector('#Encrypt_Text').innerHTML = '';
-    document.querySelector('#Decrypt_Text').innerHTML = '';
+    document.querySelector('#Encrypt_Text').value = '';
+    document.querySelector('#Decrypt_Text').value = '';
     CreateEncryptionTable();
 }
 
-function CreateEncryptionTable(size = 6 /* standard = true */) {
+function CreateEncryptionTable() {
+    const size = CodeCoof.length;
     const table_head = document.createElement('text');
     table_head.innerHTML = "Шифровальная таблица";
     table_head.setAttribute('id', 'table_head');
@@ -113,6 +116,9 @@ function EncryptEvent() {
     }
     const Key = (document.querySelector('#Code_Key').value).toUpperCase();
 
+    console.log('Key   ' + Key);
+    console.log('InitiallyEncryptText   ' + InitiallyEncryptText);
+
     if(Key && InitiallyEncryptText) {
         const ArrayEncryptText = [];
         const Limitation = (InitiallyEncryptText.length % Key.length == 0) ?
@@ -130,6 +136,9 @@ function EncryptEvent() {
                 Arr = [];
             }
         }
+
+        console.log('ArrayEncryptText');
+        console.log(ArrayEncryptText);
         
         const SortKey = Key.split('').sort();
         const SortArrayEncryptText = [];
@@ -147,6 +156,10 @@ function EncryptEvent() {
                 }
             }
         }
+
+        console.log('SortKey   ' + SortKey);
+        console.log('SortArrayEncryptText');
+        console.log(SortArrayEncryptText);
 
         const AnswerArea = document.querySelector('#Decrypt_Text');
         AnswerArea.value = '';
@@ -176,16 +189,23 @@ function DecryptEvent() {
             InitiallyDecryptText = null;
         }
     }
-
     const Key = document.querySelector('#Code_Key').value.toUpperCase();
-    if(Key && InitiallyDecryptText) {
 
+    console.log('Key   ' + Key);
+    console.log('InitiallyDecryptText   ' + InitiallyDecryptText);
+
+    if(Key && InitiallyDecryptText) {
         const SortKey = Key.split('').sort();
         let RowQuantity = InitiallyDecryptText.length / Key.length - (InitiallyDecryptText.length / Key.length) % 1;
         RowQuantity += ((InitiallyDecryptText.length / Key.length) % 1 == 0) ? 0 : 1;
         let ZeroQuantity = Key.length - InitiallyDecryptText.length % Key.length;
         ZeroQuantity = (ZeroQuantity == Key.length) ? 0 : ZeroQuantity;
-        let LettersWithUnfinishedColumns = Key.split('').slice(Key.length - ZeroQuantity, Key.length);
+        const LettersWithUnfinishedColumns = Key.split('').slice(Key.length - ZeroQuantity, Key.length);
+
+        console.log('SortKey   ' + SortKey);
+        console.log('LettersWithUnfinishedColumns   ' + LettersWithUnfinishedColumns);
+        
+        /* 
         const QuantityLettersWithUnfinishedColumns = [];
         for(let i = 0; i < LettersWithUnfinishedColumns.length; i++) {
             let counter = 0;
@@ -205,6 +225,7 @@ function DecryptEvent() {
                 QuantityLettersWithUnfinishedColumns.push([LettersWithUnfinishedColumns[i], counter]);
             }
         }
+        */
 
         const IndexesOfIncompleteColumns = [];
         let CopySortKey = SortKey.slice(0, SortKey.length);
@@ -217,6 +238,8 @@ function DecryptEvent() {
                 }
             }
         }
+
+        console.log('IndexesOfIncompleteColumns   ' + IndexesOfIncompleteColumns);
 
         let SelectedColumn = 0;
         let SelectedRow = 0;
@@ -251,6 +274,9 @@ function DecryptEvent() {
             }
         }
 
+        console.log('SortDecryptText');
+        console.log(SortDecryptText);
+
         let OriginalDecryptText = [];
         for(let k = 0; k < RowQuantity; k++) {
             const Arr = [];
@@ -268,6 +294,9 @@ function DecryptEvent() {
         }
         OriginalDecryptText = OriginalDecryptText.join('');
 
+        console.log('OriginalDecryptText');
+        console.log(OriginalDecryptText);
+
         let AnswerText = '';
         for(let k = 0; k < OriginalDecryptText.length; k = k + 2) {
             let X = CodeCoof.indexOf(OriginalDecryptText[k]) + 1;
@@ -284,18 +313,14 @@ function DecryptEvent() {
 }
 
 function RandomSortArray(arr) {
-    const Answer = new Array(arr.length);
-    Answer.fill(0);
-    for(let i = 0; i < arr.length; i++) {
-        while(true) {
-            const Num = Math.floor(Math.random() * (arr.length - 0 + 1)) + 0;
-            if(Answer[Num] == 0) {
-                Answer[Num] = arr[i];
-                break;
-            }
-        }
+    const AnswerArray = arr.slice(0, arr.length);
+    for(let i = AnswerArray.length - 1; i >= 0; i--) {
+        const Index = Math.floor(Math.random() * i);
+        let ElementToBeReplaced = AnswerArray[i];
+        AnswerArray[i] = AnswerArray[Index];
+        AnswerArray[Index] = ElementToBeReplaced;
     }
-    return Answer.slice(0, Answer.length);
+    return AnswerArray;
 }
 
 function CheckArr(arr) {
